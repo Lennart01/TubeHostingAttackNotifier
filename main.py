@@ -1,4 +1,5 @@
-import datetime
+import datetime, sys
+import getopt
 from time import sleep
 import requests
 import json
@@ -125,10 +126,29 @@ def controller(email, password, webhook_url):
     # recursive call
     controller(email, password, webhook_url)
 
-
 # getting required user pinput
-email = input("Enter your email:")
-password = input("Enter your password:")
-webhook_url = input("Enter your Webhook:")
+email = None
+password = None
+webhook_url = None
+
+argv = sys.argv[1:]
+  
+opts, args = getopt.getopt(argv, "m:p:u")
+  
+for opt, arg in opts:
+    if opt in ['-m']:
+        email = arg
+    elif opt in ['-p']:
+        password = arg
+    elif opt in ['-u']:
+        webhook_url = arg
+
+#if there is no passed cli arg, get interactive user input
+if email == None:
+    email = input("Enter your email:")
+if password == None:
+    password = input("Enter your password:")
+if webhook_url == None:    
+    webhook_url = input("Enter your Webhook:")
 # executing recursive controller
 controller(email, password, webhook_url)
