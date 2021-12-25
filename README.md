@@ -13,7 +13,7 @@ git clone https://github.com/Lennart01/TubeHostingAttackNotifier
 
 cd TubeHostingAttackNotifier
 
-Screen -S TubeHostingAttackNotifier python3 main.py
+screen -S TubeHostingAttackNotifier python3 main.py
 ```
 ## Usage
 Enter your login credentials and Discord webhook when prompted.
