@@ -1,12 +1,9 @@
-FROM debian:latest
-RUN apt-get update &&\
-    apt-get install python3-pip -y
+FROM python:3.8-alpine3.14
 
 Run pip3 install datetime requests
 
-RUN mkdir -p /TubeHostingAttackNotifier/
-ADD main.py /TubeHostingAttackNotifier/.
+WORKDIR /TubeHostingAttackNotifier/
 
+COPY . . 
 
-CMD ["python3 /TubeHostingAttackNotifier/main.py -p $passwd -m $mail -u $url"]
-ENTRYPOINT ["/bin/bash", "-c"]
+ENTRYPOINT python ./main.py -p $passwd -m $mail -u $url

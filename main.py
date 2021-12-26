@@ -126,14 +126,14 @@ def controller(email, password, webhook_url):
     # recursive call
     controller(email, password, webhook_url)
 
-# getting required user pinput
+# getting required user input
 email = None
 password = None
 webhook_url = None
 
 argv = sys.argv[1:]
   
-opts, args = getopt.getopt(argv, "m:p:u")
+opts, args = getopt.getopt(argv, "m:p:u:")
   
 for opt, arg in opts:
     if opt in ['-m']:
