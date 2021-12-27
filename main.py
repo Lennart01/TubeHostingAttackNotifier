@@ -4,6 +4,7 @@ from time import sleep
 import requests
 import json
 from datetime import datetime
+import sys
 
 
 # send found attack to the webhook
@@ -114,17 +115,65 @@ def check_for_new_attacks(auth_token, webhook_url, service_id):
             send_to_webhook(webhook_url, attack_list[i])
 
 
+# stops script
+def stop():
+    sys.exit()
+
+
+# validates user input
+def input_validation(email, password, webhook_url):
+    # validates login data
+    try:
+        get_auth_token(email, password)
+    except:
+        print("Wrong login data")
+        print("Shutting down")
+        sleep(5)
+        stop()
+    # testing the webhook
+    data = {
+        "content": "",
+        "embeds": [
+            {
+                "title": "This is a test Message",
+                "description": "Your webhook works",
+                "color": 10751,
+
+                "footer": {
+                    "text": "tubehosting ddos alert\nmade with <3 by Lennart01"
+                }
+            }
+        ],
+        "username": "DDoS-Alert",
+        "avatar_url": "https://resources.tube-hosting.com/logo/app_icon.png"
+    }
+    try:
+        response = requests.post(webhook_url, json=data)
+        if response.status_code != 204:
+            raise ValueError('Wrong webhook')
+    except:
+        print("Webhook is incorrect")
+        print("Shutting down")
+        sleep(5)
+        stop()
+
+
 # recursive controller function.
 def controller(email, password, webhook_url):
-    # getting auth_token and service_id from api
-    auth_token = get_auth_token(email, password)
-    service_id = get_service_id(auth_token)
-    # check for attacks
-    check_for_new_attacks(auth_token, webhook_url, service_id)
-    # sleeping the process for 20 seconds
+    # preventing crash in case of an api error
+    try:
+        # getting auth_token and service_id from api
+        auth_token = get_auth_token(email, password)
+        service_id = get_service_id(auth_token)
+        # check for attacks
+        check_for_new_attacks(auth_token, webhook_url, service_id)
+        # sleeping the process for 20 seconds
+    except Exception as e:
+        print(e)
     sleep(20)
     # recursive call
     controller(email, password, webhook_url)
+
 
 # getting required user input
 email = None
@@ -132,9 +181,9 @@ password = None
 webhook_url = None
 
 argv = sys.argv[1:]
-  
+
 opts, args = getopt.getopt(argv, "m:p:u:")
-  
+
 for opt, arg in opts:
     if opt in ['-m']:
         email = arg
@@ -143,12 +192,16 @@ for opt, arg in opts:
     elif opt in ['-u']:
         webhook_url = arg
 
-#if there is no passed cli arg, get interactive user input
+# if there is no passed cli arg, get interactive user input
 if email == None:
     email = input("Enter your email:")
 if password == None:
     password = input("Enter your password:")
-if webhook_url == None:    
+if webhook_url == None:
     webhook_url = input("Enter your Webhook:")
+
+# check user input
+input_validation(email, password, webhook_url)
+
 # executing recursive controller
 controller(email, password, webhook_url)
