@@ -160,19 +160,19 @@ def input_validation(email, password, webhook_url):
 
 # recursive controller function.
 def controller(email, password, webhook_url):
-    # preventing crash in case of an api error
-    try:
-        # getting auth_token and service_id from api
-        auth_token = get_auth_token(email, password)
-        service_id = get_service_id(auth_token)
-        # check for attacks
-        check_for_new_attacks(auth_token, webhook_url, service_id)
-        # sleeping the process for 20 seconds
-    except Exception as e:
-        print(e)
-    sleep(20)
-    # recursive call
-    controller(email, password, webhook_url)
+    # infinite loop
+    while True:
+        # preventing crash in case of an api error
+        try:
+            # getting auth_token and service_id from api
+            auth_token = get_auth_token(email, password)
+            service_id = get_service_id(auth_token)
+            # check for attacks
+            check_for_new_attacks(auth_token, webhook_url, service_id)
+            # sleeping the process for 20 seconds
+        except Exception as e:
+            print(e)
+        sleep(20)
 
 
 # getting required user input
@@ -203,5 +203,5 @@ if webhook_url == None:
 # check user input
 input_validation(email, password, webhook_url)
 
-# executing recursive controller
+# executing controller
 controller(email, password, webhook_url)
