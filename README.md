@@ -1,5 +1,4 @@
 # TubeHostingAttackNotifier
-
 TubeHostingAttackNotifier is a Python project for reporting DDoS attacks on your [Tube-Hosing.com](https://tube-hosting.com) server to a Discord webhook.
 
 ## Installation
