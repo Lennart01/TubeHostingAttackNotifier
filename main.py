@@ -3,72 +3,8 @@ import getopt
 from time import sleep
 import requests
 import json
-from datetime import datetime
 import sys
-
-
-# send found attack to the webhook
-def send_to_webhook(webhook_url, message):
-    # prevent empy values because discord doesnt accept them
-    for i in message:
-        if message.get(i) == "":
-            message[i] = "Null"
-
-    # JSON to send via webhook
-    data = {
-        "content": "",
-        "embeds": [
-            {
-                "title": "New attack detected",
-                "description": "Mitigation was initiated",
-                "url": "https://cp.tube-hosting.com",
-                "color": 10751,
-                "fields": [
-                    {
-                        "name": "time (UTC)",
-                        "value": (message['time'].replace("T", " "))
-                    },
-                    {
-                        "name": "ip under attack",
-                        "value": str(message['ip'])
-                    },
-                    {
-                        "name": "packet count",
-                        "value": str(message['packets'])
-                    },
-                    {
-                        "name": "traffic",
-                        "value": str(message['traffic'])
-                    },
-                    {
-                        "name": "average packet size",
-                        "value": str(message['avg_pktsize'])
-                    },
-                    {
-                        "name": "type",
-                        "value": str(message['type'])
-                    },
-                    {
-                        "name": "analyzer",
-                        "value": str(message['analyzer'])
-                    },
-                    {
-                        "name": "attack id",
-                        "value": str(message['id'])
-                    }
-                ],
-                "footer": {
-                    "text": "tubehosting ddos alert\nmade with <3 by Lennart01"
-                }
-            }
-        ],
-        "username": "DDoS-Alert",
-        "avatar_url": "https://resources.tube-hosting.com/logo/app_icon.png"
-    }
-
-    # sending JSON to webhook
-    requests.post(webhook_url, json=data)
-
+import attack_handler
 
 # getting the tubehosting auth_token via /login
 def get_auth_token(email, password):
@@ -87,32 +23,28 @@ def get_auth_token(email, password):
 def get_service_id(auth_token):
     # creating header for authentication
     header = {"Authorization": "Bearer " + auth_token}
-    response = requests.get("https://api.tube-hosting.com/servicegroups/currents", headers=header)
+    response = requests.get("https://api.tube-hosting.com/servicegroups/currents?primaryOnly=false", headers=header)
     # converting JSON
     response_list = json.loads(response.text)
-    # returning service_id
-    return response_list[0]['groupData']['services'][1]['id']
+    # creating list to hold all service IDs
+    serviceID_list = [None] * 10
+    # grabbing all service ids of the user and storing them
+    k = 0
+    for i in range(len(response_list)):
+        j = 1
+        while j < len(response_list[i]['groupData']['services']):
+            serviceID_list[k] = response_list[i]['groupData']['services'][j]['dataId']
+            k = k + 1
+            j = j + 1
+    # returning serviceID_list
+    return serviceID_list
 
 
-# grab latest attacks from api
-def check_for_new_attacks(auth_token, webhook_url, service_id):
-    # creating header for authentication
-    header = {"Authorization": "Bearer " + auth_token}
-    # creating url with correct service_id
-    url = "https://api.tube-hosting.com/ipbundles/" + str(service_id) + "/ddos/incidents"
-    response = requests.get(url, headers=header)
-    # convert JSON
-    attack_list = json.loads(response.text)
-    i = 0
-    # defining interval and subtracting exec time and wait time from it
-    interval_to_check = int(datetime.utcnow().strftime("%Y%m%d%H%M%S")) - 23
-    # iterating over list of all attacks
-    for i in range(len(attack_list)):
-        # removing unwanted chars and casting to int. Comparing it to specified interval
-        if int((attack_list[i]['time'].translate({ord(i): None for i in '-:T'}))) > interval_to_check:
-            print(attack_list[i])
-            # sending found attack using webhook method
-            send_to_webhook(webhook_url, attack_list[i])
+def check_for_new_version():
+    version = 1.0
+    response = requests.get("https://raw.githubusercontent.com/Lennart01/TubeHostingAttackNotifier/master/version.txt")
+    if float(response.text) > version:
+        print("There is a new Version. Please update")
 
 
 # stops script
@@ -158,20 +90,22 @@ def input_validation(email, password, webhook_url):
         stop()
 
 
-# recursive controller function.
-def controller(email, password, webhook_url):
+# controller function, executed until SIGTERM
+def controller(email, password, webhook_url, last_attack_time):
     # infinite loop
     while True:
         # preventing crash in case of an api error
         try:
+            # checking for a new version
+            check_for_new_version()
             # getting auth_token and service_id from api
             auth_token = get_auth_token(email, password)
             service_id = get_service_id(auth_token)
             # check for attacks
-            check_for_new_attacks(auth_token, webhook_url, service_id)
-            # sleeping the process for 20 seconds
+            last_attack_time = attack_handler.check(auth_token, webhook_url, service_id, last_attack_time)
         except Exception as e:
             print(e)
+        # sleeping the process for 20 seconds
         sleep(20)
 
 
@@ -203,5 +137,9 @@ if webhook_url == None:
 # check user input
 input_validation(email, password, webhook_url)
 
+# Initially getting last attack timestamp
+auth_token = get_auth_token(email, password)
+last_attack_time = attack_handler.time_stamp(auth_token, get_service_id(auth_token))
+
 # executing controller
-controller(email, password, webhook_url)
+controller(email, password, webhook_url, last_attack_time)
