@@ -30,7 +30,6 @@ def check(auth_token, webhook_url, serviceID_list, last_attack_time):
     # creating header for authentication
     header = {"Authorization": "Bearer " + auth_token}
     # iterating over every serviceID and checking for attacks
-    print(serviceID_list)
     for i in range(len(serviceID_list)):
         service_id = serviceID_list[i]
         if service_id is not None:
