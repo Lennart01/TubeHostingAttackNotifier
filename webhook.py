@@ -1,4 +1,5 @@
 import requests
+import json
 
 
 # send found attack to the webhook
@@ -52,7 +53,7 @@ def send(webhook_url, message):
                     }
                 ],
                 "footer": {
-                    "text": "tubehosting ddos alert\nmade with <3 by Lennart01"
+                    "text": "tubehosting ddos alert made with <3 by Lennart01"
                 }
             }
         ],
@@ -60,5 +61,20 @@ def send(webhook_url, message):
         "avatar_url": "https://resources.tube-hosting.com/logo/app_icon.png"
     }
 
+    # sending JSON to webhook
+    requests.post(webhook_url, json=data)
+
+    # Building sample jSON to send via webhook
+    data = "{\"content\": \"\", \"embeds\": [{\"title\": \"DDos Samples\",\"color\": 10751,\"fields\": ["
+    for i in range(len(message['samples'])):
+        data += "{\"name\": \"Sample " + str(i) + "\"" + ",\"value\": " + "\"" + "source ip: " + str(
+            message['samples'][i]['srcIP']) + " || port under attack: " + str(
+            message['samples'][i]['dstPort']) + "\"" + "}"
+        if i < 19:
+            data += ","
+
+    footer = "],\"footer\": {\"text\": \"tubehosting ddos alert made with <3 by Lennart01\"}}],\"username\": \"DDoS-Alert\",\"avatar_url\": \"https://resources.tube-hosting.com/logo/app_icon.png\"}"
+    data += footer
+    data = json.loads(data)
     # sending JSON to webhook
     requests.post(webhook_url, json=data)
