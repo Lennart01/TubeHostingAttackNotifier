@@ -1,4 +1,4 @@
-import datetime, sys
+import datetime
 import getopt
 from time import sleep
 import requests
@@ -7,6 +7,7 @@ import sys
 import attack_handler
 import input_validation
 import os
+import sys
 
 
 # getting the tubehosting auth_token via /login
@@ -23,15 +24,11 @@ def get_auth_token(email, password):
 
 
 def check_for_new_version():
-    version = 2.0
+    version = 3.0
     response = requests.get("https://raw.githubusercontent.com/Lennart01/TubeHostingAttackNotifier/master/version.txt")
     if float(response.text) > version:
         print("There is a new Version. Please update")
 
-
-# stops script
-def stop():
-    sys.exit()
 
 
 # controller function, executed until SIGTERM
@@ -42,7 +39,7 @@ def controller(email, password, webhook_url, ip_list, last_attack_time):
         try:
             # checking for a new version
             check_for_new_version()
-            # getting auth_token and service_id from api
+            # get auth_token from api
             auth_token = get_auth_token(email, password)
             # check for attacks
             last_attack_time = attack_handler.check(auth_token, webhook_url, ip_list, last_attack_time)
@@ -52,42 +49,33 @@ def controller(email, password, webhook_url, ip_list, last_attack_time):
         sleep(20)
 
 
-# getting required user input
-email = None
-password = None
-webhook_url = None
+# set docker environment variables
+email = os.getenv("mail", None)
+password = os.getenv("passwd", None)
+webhook_url = os.getenv("url", None)
+ip_list = os.getenv("ips", None)
+if ip_list is not None:
+    ip_list = ip_list.split(",")
 os.system('cls' if os.name == 'nt' else 'clear')
 
-argv = sys.argv[1:]
-
-opts, args = getopt.getopt(argv, "m:p:u:")
-
-for opt, arg in opts:
-    if opt in ['-m']:
-        email = arg
-    elif opt in ['-p']:
-        password = arg
-    elif opt in ['-u']:
-        webhook_url = arg
-
 # if there is no passed cli arg, get interactive user input
-if email == None:
+if email is None:
     email = input("Enter your email:")
-if password == None:
+if password is None:
     password = input("Enter your password:")
-if webhook_url == None:
+if webhook_url is None:
     webhook_url = input("Enter your Webhook:")
-
-# get ips to monitor from user
-input_ongoing = True
-ip_list = []
-print("please enter the ips to monitor.\nOnly enter one ip at a time.\nSimply press enter once you are done")
-while input_ongoing:
-    user_input = input("ip: ")
-    if len(user_input) == 0:
-        input_ongoing = False
-    else:
-        ip_list.append(user_input)
+if ip_list is None:
+    # get ips to monitor from user
+    input_ongoing = True
+    ip_list = []
+    print("please enter the ips to monitor.\nOnly enter one ip at a time.\nSimply press enter once you are done")
+    while input_ongoing:
+        user_input = input("ip: ")
+        if len(user_input) == 0:
+            input_ongoing = False
+        else:
+            ip_list.append(user_input)
 
 # check user input
 input_validation.validate(email, password, webhook_url)
