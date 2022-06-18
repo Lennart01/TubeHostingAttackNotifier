@@ -37,3 +37,10 @@ docker run -d --name TubeHostingAttackNotifier -e mail=your@email.tld -e passwd=
 ```
 
 Now you should have the script running in a Docker container 🎉
+
+## Updating
+```bash
+cd TubeHostingAttackNotifier
+git pull
+```
+
