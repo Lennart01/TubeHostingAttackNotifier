@@ -1,6 +1,7 @@
 import requests
 from time import sleep
 import json
+import sys
 
 
 # getting the tubehosting auth_token via /login
@@ -25,7 +26,7 @@ def validate(email, password, webhook_url):
         print("Wrong login data")
         print("Shutting down")
         sleep(5)
-        stop()
+        sys.exit(1)
     # testing the webhook
     data = {
         "content": "",
@@ -51,4 +52,4 @@ def validate(email, password, webhook_url):
         print("Webhook is incorrect")
         print("Shutting down")
         sleep(5)
-        stop()
+        sys.exit(1)
