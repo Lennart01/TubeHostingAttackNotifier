@@ -29,62 +29,63 @@ def send(webhook_url, message):
     if bandwidth<10000:
         bandwidth = decSep(str(message['traffic']))+" Mbit/s"
     else:
-        data = {
-            "content": "",
-            "embeds": [
-                {
-                    "title": "New attack detected",
-                    "description": str(message['id']),
-                    "url": "https://cp.tube-hosting.com",
-                    "color": 10751,
-                    "fields": [
-                        {
-                            "name": "⠀",
-                            "value": "> *IP under attack*:\n"
-                                     "> **"+str(message['ip'])+"**\n⠀",
-                            "inline": "true"
-                        },
-                        {
-                            "name": "⠀",
-                            "value": "> *time:*\n"
-                                     "> **"+(message['time'].replace("T", " "))+"**\n⠀",
-                            "inline": "true"
-                        },
-                        {
-                            "name": "⠀",
-                            "value": "> *type:*\n"
-                                     "> **"+str(message['type'])+"**\n⠀",
-                            "inline": "true"
-                        },
-                        {
-                            "name": "⠀",
-                            "value": "> *initital bandwith*:\n"
-                                     "> **"+str(bandwidth)+"**\n⠀",
-                            "inline": "true"
-                        },
-                        {
-                            "name": "⠀",
-                            "value": "> *Initial Packets per second:*\n"
-                                     "> **" + decSep(str(message['pps'])) + " Packets/s**\n⠀",
-                        "inline": "true"
-                        },
-                        {
-                            "name": "⠀",
-                            "value": "> *avg. packet size:*\n"
-                                     "> **"+str(message['avgPacketSize'])+"**\n⠀",
-                            "inline": "true"
-                        }
-                    ],
-                    "footer": {
-                        "text": "tubehosting ddos alert made with <3 by Lennart01"
-                    },
-                    "timestamp": (message['time'].replace("T", " ")[:-4])
-                }
-            ],
-            "username": "DDoS-Alert",
-            "avatar_url": "https://resources.tube-hosting.com/logo/app_icon.png"
-        }
         bandwidth = "~"+decSep(str(round(message['traffic']/1000)))+" Gbit/s"
+
+    data = {
+        "content": "",
+        "embeds": [
+            {
+                "title": "New attack detected",
+                "description": str(message['id']),
+                "url": "https://cp.tube-hosting.com",
+                "color": 10751,
+                "fields": [
+                    {
+                        "name": "⠀",
+                        "value": "> *IP under attack*:\n"
+                                 "> **"+str(message['ip'])+"**\n⠀",
+                        "inline": "true"
+                    },
+                    {
+                        "name": "⠀",
+                        "value": "> *time:*\n"
+                                 "> **"+(message['time'].replace("T", " "))+"**\n⠀",
+                        "inline": "true"
+                    },
+                    {
+                        "name": "⠀",
+                        "value": "> *type:*\n"
+                                 "> **"+str(message['type'])+"**\n⠀",
+                        "inline": "true"
+                    },
+                    {
+                        "name": "⠀",
+                        "value": "> *initital bandwith*:\n"
+                                 "> **"+bandwidth+"**\n⠀",
+                        "inline": "true"
+                    },
+                    {
+                        "name": "⠀",
+                        "value": "> *Initial Packets per second:*\n"
+                                 "> **" + decSep(str(message['pps'])) + " Packets/s**\n⠀",
+                    "inline": "true"
+                    },
+                    {
+                        "name": "⠀",
+                        "value": "> *avg. packet size:*\n"
+                                 "> **"+str(message['avgPacketSize'])+"**\n⠀",
+                        "inline": "true"
+                    }
+                ],
+                "footer": {
+                    "text": "tubehosting ddos alert made with <3 by Lennart01"
+                },
+                "timestamp": (message['time'].replace("T", " ")[:-4])
+            }
+        ],
+        "username": "DDoS-Alert",
+        "avatar_url": "https://resources.tube-hosting.com/logo/app_icon.png"
+    }
 
     # JSON to send via webhook
 
