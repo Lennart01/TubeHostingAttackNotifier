@@ -24,7 +24,7 @@ def get_auth_token(email, password):
 
 
 def check_for_new_version():
-    version = 3.0
+    version = 3.1
     response = requests.get("https://raw.githubusercontent.com/Lennart01/TubeHostingAttackNotifier/master/version.txt")
     if float(response.text) > version:
         print("There is a new Version. Please update")
