@@ -33,7 +33,7 @@ cd TubeHostingAttackNotifier
 
 docker build -t thacknoti . 
 
-docker run -d --name TubeHostingAttackNotifier -e mail=your@email.tld -e passwd=your@Password123 -e url=https://discord.com/yourWebhookUrl -e ips=ip1,ip2,ip3,ip4 thacknoti
+docker run -d --restart unless-stopped --name TubeHostingAttackNotifier -e mail=your@email.tld -e passwd=your@Password123 -e url=https://discord.com/yourWebhookUrl -e ips=ip1,ip2,ip3,ip4 thacknoti
 ```
 
 Now you should have the script running in a Docker container 🎉
