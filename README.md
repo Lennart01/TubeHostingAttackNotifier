@@ -1,21 +1,8 @@
-# TubeHostingAttackNotifier
-TubeHostingAttackNotifier is a Python project for reporting DDoS attacks on your [Tube-Hosting.com](https://tube-hosting.com) server to a Discord webhook.
+# TubeHostingAttackNotifier-Go
+
+TubeHostingAttackNotifier-Go is a Go project for reporting DDoS attacks on your [Tube-Hosting.com](https://tube-hosting.com) server to a Discord webhook. This is a rewrite of the original Python project.
 
 ## Installation
-
-### Without Docker
-
-```bash
-pip3 install datetime requests
-
-git clone https://github.com/Lennart01/TubeHostingAttackNotifier
-
-cd TubeHostingAttackNotifier
-
-screen -S TubeHostingAttackNotifier python3 main.py
-```
-Enter your login credentials and Discord webhook when prompted.
-press [ctrl + a]  [ctrl + d] to detach from the screen. 
 
 ### Using Docker
 * ! to run this script using Docker, you already need a Docker installation !
@@ -42,5 +29,9 @@ Now you should have the script running in a Docker container 🎉
 ```bash
 cd TubeHostingAttackNotifier
 git pull
+docker build -t thacknoti .
+# You will need to stop and remove the old container before running a new one
+docker stop TubeHostingAttackNotifier
+docker rm TubeHostingAttackNotifier
+# Then run the docker run command again
 ```
-
